@@ -5,6 +5,10 @@ from pathlib import Path
 import pandas as pd
 from typing import Literal
 from pydantic import BaseModel, Field
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+
 
 MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "churn_model.joblib"
 
@@ -67,13 +71,19 @@ app = FastAPI(
     title="Customer Churn Prediction API"
 )
 
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+app.mount(
+    "/frontend",
+    StaticFiles(directory=FRONTEND_DIR),
+    name="frontend"
+)
 
 #define endpoint
 @app.get("/")
 def home():
-    return{
-        "message": "Customer Churn Prediction API"
-    }
+    return FileResponse(
+        FRONTEND_DIR / "index.html"
+    )
     
     
 @app.post("/predict",
